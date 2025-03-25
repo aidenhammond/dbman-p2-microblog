@@ -44,6 +44,9 @@ public class BookmarksController {
     private final UserService userService;
     private final DataSource dataSource;
 
+    /**
+    * Bookmarks controller constructor, associated with some userService as well as dataSource.
+    */
     @Autowired
     public BookmarksController(UserService userService, DataSource dataSource) {
         this.userService = userService;
@@ -75,6 +78,10 @@ public class BookmarksController {
             ORDER BY p.postDate DESC
         """;
 
+
+        /*
+        ** Catching error if bookmarks fail to load. 
+        */
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -114,6 +121,9 @@ public class BookmarksController {
 
         mv.addObject("posts", posts);
 
+
+        // Checking to see if post has any content associated with it. 
+        //
         if (posts.isEmpty()) {
             mv.addObject("isNoContent", true);
         }

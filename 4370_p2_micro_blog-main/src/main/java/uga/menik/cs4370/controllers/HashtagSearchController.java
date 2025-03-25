@@ -109,6 +109,7 @@ public class HashtagSearchController {
                         .toLocalDateTime()
                         .format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a"));
     
+                    // Checking if post is hearted or bookmarked for particular user
                     boolean isHearted = userService.isPostHeartedByUser(postId);
                     boolean isBookmarked = userService.isPostBookmarkedByUser(postId);
     
@@ -127,6 +128,7 @@ public class HashtagSearchController {
             mv.addObject("errorMessage", "Failed to load posts for hashtags.");
         }
     
+        // Checking if post has zero content (empty)
         mv.addObject("posts", posts);
         if (posts.isEmpty()) {
             mv.addObject("isNoContent", true);
