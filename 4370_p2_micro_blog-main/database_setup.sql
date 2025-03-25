@@ -64,3 +64,47 @@ create table if not exists follows (
         foreign key (followerId) references user(userId),
         foreign key (followedId) references user(userId)
 );
+
+
+-- Insert sample users
+insert into user (username, password, firstName, lastName) values 
+('show tab', '$2a$10$0Xrfo.n5O7ZVU322.xPwcu1IiZPYNDkegHds8K3zDUYuDdfUlHf0.', 'Aiden', 'Hammond'),
+('jpetro123', '$2a$10$QmssvcnTGEHHI/lmCvN2leihEl1UCQwzhELFzfaplbEee9Z60y0Gq', 'Janet', 'Petro'),
+('carol789', 'awjefiowjaoief', 'Carol', 'Jones'),
+('dave321', 'eaiowjfowiaejfoawefa', 'Dave', 'Smith');
+
+-- Insert sample posts
+insert into post (userId, heartsCount, commentsCount, postDate, content) values 
+(1, 5, 2, '2025-03-24 10:15:00', 'iowajfw.'),
+(2, 3, 1, '2025-03-23 08:45:00', 'oweiafjowifjawoiefj.'),
+(3, 10, 5, '2025-03-22 12:30:00', 'fiawjfoiajef.'),
+(4, 0, 0, '2025-03-24 14:00:00', 'efoawjefioafweiofjao');
+
+-- Insert sample hearts
+insert into heart (userId, postId) values 
+(1, 2),
+(2, 1),
+(3, 1),
+(4, 3);
+
+-- Insert sample bookmarks
+insert into bookmark (userId, postId) values 
+(1, 3),
+(3, 2),
+(4, 1);
+
+-- Insert sample comments
+insert into comment (postId, content, postDate, userId) values 
+(1, 'sick!', '2025-03-24 11:00:00', 2),
+(1, 'hiweafow', '2025-03-24 11:05:00', 3),
+(2, 'weiofaj.', '2025-03-23 09:00:00', 1),
+(3, 'eiwaofjwoijf', '2025-03-22 13:00:00', 4);
+
+-- Insert sample follows
+insert into follows (followerId, followedId) values 
+(1, 2),
+(1, 3),
+(2, 1),
+(4, 1),
+(3, 4);
+
