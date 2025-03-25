@@ -26,7 +26,9 @@ import java.sql.Connection;
 import java.sql.Timestamp;
 import java.sql.ResultSet;
 
+import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import java.util.ArrayList;
 /**
@@ -92,9 +94,14 @@ public class ProfileController {
                 while (rs.next()) {
                     String postId = String.valueOf(rs.getInt("postId"));
                     String content = rs.getString("content");
-                    String postDate = rs.getTimestamp("postDate").toString();
                     String firstName = rs.getString("firstName");
                     String lastName = rs.getString("lastName");
+
+                    Timestamp ts = rs.getTimestamp("postDate");
+                    String postDate = ts.toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime()
+                        .format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a"));
     
                     boolean isHearted = userService.isPostHeartedByUser(postId);
                     boolean isBookmarked = userService.isPostBookmarkedByUser(postId);

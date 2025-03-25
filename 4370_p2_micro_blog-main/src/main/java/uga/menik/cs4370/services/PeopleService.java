@@ -48,7 +48,7 @@ public class PeopleService {
 
 
         // Write an SQL query to find the users that are not the current user (and added isFollowed).
-	final String usersNotUserSql = """
+        final String usersNotUserSql = """
             SELECT u.userId, u.firstName, u.lastName,
                    CASE WHEN f.followerId IS NOT NULL THEN true ELSE false END AS isFollowed,
                    MAX(p.postDate) AS lastActiveDate
@@ -64,44 +64,35 @@ public class PeopleService {
 
 
 	
+        // Run the query with a datasource.
+        // See UserService.java to see how to inject DataSource instance and
+        // use it to run a query.
         try (Connection conn = dataSource.getConnection(); PreparedStatement userStmt = conn.prepareStatement(usersNotUserSql)) {
 
-	    userStmt.setString(1, userIdToExclude);
-	    userStmt.setString(2, userIdToExclude);
+            userStmt.setString(1, userIdToExclude);
+            userStmt.setString(2, userIdToExclude);
 
 
             try(ResultSet rs = userStmt.executeQuery()) {
                 while(rs.next()) {
-		 	 String userId = rs.getString("userId");
-			 String firstName = rs.getString("firstName");
-			 String lastName = rs.getString("lastName");
-			 boolean isFollowed = rs.getBoolean("isFollowed");
+                    String userId = rs.getString("userId");
+                    String firstName = rs.getString("firstName");
+                    String lastName = rs.getString("lastName");
+                    boolean isFollowed = rs.getBoolean("isFollowed");
 
-			 String lastActiveDate = rs.getTimestamp("lastActiveDate") != null ? rs.getTimestamp("lastActiveDate").toString() : "N/A";
+                    String lastActiveDate = rs.getTimestamp("lastActiveDate") != null ? rs.getTimestamp("lastActiveDate").toString() : "N/A";
 
-			 
-			 
-			 FollowableUser user = new FollowableUser(userId, firstName, lastName, isFollowed, lastActiveDate);
-			 followableUsers.add(user);
-		}
-	    }
+                    
+                    
+                    FollowableUser user = new FollowableUser(userId, firstName, lastName, isFollowed, lastActiveDate);
+                    followableUsers.add(user);
+                }
+            }
         } catch (SQLException e){
-		e.printStackTrace();
-	}
+            e.printStackTrace();
+        }
         return followableUsers;
         
-        // Run the query with a datasource.
-        // See UserService.java to see how to inject DataSource instance and
-        // use it to run a query.
-
-        // Use the query result to create a list of followable users.
-        // See UserService.java to see how to access rows and their attributes
-        // from the query result.
-        // Check the following createSampleFollowableUserList function to see 
-        // how to create a list of FollowableUsers.
-
-        // Replace the following line and return the list you created.
-        //return Utility.createSampleFollowableUserList();
     }
 
 }

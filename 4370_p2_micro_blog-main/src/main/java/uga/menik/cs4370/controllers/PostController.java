@@ -31,7 +31,10 @@ import java.sql.PreparedStatement;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.sql.ResultSet;
+
+import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 /**
  * Handles /post URL and its sub urls.
  */
@@ -92,7 +95,11 @@ public class PostController {
 			User user = new User(userId, firstName, lastName);
 
 			String commentContent = rs.getString("content");
-			String commentPostDate = rs.getString("postDate");
+			Timestamp ts = rs.getTimestamp("postDate");
+			String commentPostDate = ts.toInstant()
+				.atZone(ZoneId.systemDefault())
+				.toLocalDateTime()
+				.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a"));
 			commentsForPost.add(new Comment(userId, commentContent, commentPostDate, user));
 		}
         } catch (Exception e) {
@@ -119,9 +126,14 @@ public class PostController {
 			boolean isBookmarked = userService.isPostBookmarkedByUser(postId);
 
 			String content = rs.getString("content");
-			String postDate = rs.getString("postDate");
 			int heartsCount = rs.getInt("heartsCount");
 			int commentsCount = rs.getInt("commentsCount");
+
+			Timestamp ts = rs.getTimestamp("postDate");
+			String postDate = ts.toInstant()
+				.atZone(ZoneId.systemDefault())
+				.toLocalDateTime()
+				.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a"));
 
 			posts.add(new ExpandedPost(postId, content, postDate, user, heartsCount, commentsCount, isHearted, isBookmarked, commentsForPost));
 
@@ -198,55 +210,49 @@ public class PostController {
      * See comments in PeopleController.java in followUnfollowUser function regarding 
      * get type form submissions and how path variables work.
      */
-    @GetMapping("/{postId}/heart/{isAdd}")
-    public String addOrRemoveHeart(@PathVariable("postId") String postId,
+	@GetMapping("/{postId}/heart/{isAdd}")
+	public String addOrRemoveHeart(@PathVariable("postId") String postId,
             @PathVariable("isAdd") Boolean isAdd) {
-        System.out.println("The user is attempting add or remove a heart:");
-        System.out.println("\tpostId: " + postId);
-        System.out.println("\tisAdd: " + isAdd);
+      System.out.println("The user is attempting add or remove a heart:");
+      System.out.println("\tpostId: " + postId);
+		System.out.println("\tisAdd: " + isAdd);
 
 	
-        String updatePostHeartCountSql = "update post set heartsCount = heartsCount + 1 where postId = ?";
-	String updateHeartSql = "insert into heart (userId, postId) values (?, ?)";
-	if (!isAdd) {
-	    updatePostHeartCountSql = "update post set heartsCount = heartsCount - 1 where postId = ?";
-	    updateHeartSql = "delete from heart where userId = ? and postId = ?";
-	}
-
-        try (Connection conn = dataSource.getConnection();
-		PreparedStatement updatePostHeartCountStmt = conn.prepareStatement(updatePostHeartCountSql);
-		PreparedStatement updateHeartStmt = conn.prepareStatement(updateHeartSql)) {
-		updatePostHeartCountStmt.setInt(1, Integer.parseInt(postId));
-		int rowsAffected = updatePostHeartCountStmt.executeUpdate();
-
-		updateHeartStmt.setInt(2, Integer.parseInt(postId));
-		updateHeartStmt.setInt(1, Integer.parseInt(userService.getLoggedInUser().getUserId()));
-		rowsAffected += updateHeartStmt.executeUpdate();
-
-		System.out.println("Total number of rows affected: " + rowsAffected);
-
-		
-		if (rowsAffected > 1) {
-			return "redirect:/post/" + postId;
+      String updatePostHeartCountSql = "update post set heartsCount = heartsCount + 1 where postId = ?";
+		String updateHeartSql = "insert into heart (userId, postId) values (?, ?)";
+		if (!isAdd) {
+			updatePostHeartCountSql = "update post set heartsCount = heartsCount - 1 where postId = ?";
+			updateHeartSql = "delete from heart where userId = ? and postId = ?";
 		}
-		else {
+
+		try (Connection conn = dataSource.getConnection();
+				PreparedStatement updatePostHeartCountStmt = conn.prepareStatement(updatePostHeartCountSql);
+				PreparedStatement updateHeartStmt = conn.prepareStatement(updateHeartSql)) {
+			updatePostHeartCountStmt.setInt(1, Integer.parseInt(postId));
+			int rowsAffected = updatePostHeartCountStmt.executeUpdate();
+
+			updateHeartStmt.setInt(2, Integer.parseInt(postId));
+			updateHeartStmt.setInt(1, Integer.parseInt(userService.getLoggedInUser().getUserId()));
+			rowsAffected += updateHeartStmt.executeUpdate();
+
+			System.out.println("Total number of rows affected: " + rowsAffected);
+
+			
+			if (rowsAffected > 1) {
+				return "redirect:/post/" + postId;
+			}
+			else {
+				String message = URLEncoder.encode("Failed to (un)like the post. Please try again.",
+					StandardCharsets.UTF_8);
+				return "redirect:/post/" + postId + "?error=" + message;
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
 			String message = URLEncoder.encode("Failed to (un)like the post. Please try again.",
 				StandardCharsets.UTF_8);
 			return "redirect:/post/" + postId + "?error=" + message;
 		}
-	}
-	catch(Exception e) {
-		e.printStackTrace();
-		String message = URLEncoder.encode("Failed to (un)like the post. Please try again.",
-			StandardCharsets.UTF_8);
-		return "redirect:/post/" + postId + "?error=" + message;
-	}
-
-    
-        // Redirect the user if the comment adding is a success.
-        // return "redirect:/post/" + postId;
-
-        // Redirect the user with an error message if there was an error.
     }
 
     /**
@@ -255,43 +261,43 @@ public class PostController {
      * See comments in PeopleController.java in followUnfollowUser function regarding 
      * get type form submissions.
      */
-    @GetMapping("/{postId}/bookmark/{isAdd}")
-    public String addOrRemoveBookmark(@PathVariable("postId") String postId,
+	@GetMapping("/{postId}/bookmark/{isAdd}")
+	public String addOrRemoveBookmark(@PathVariable("postId") String postId,
             @PathVariable("isAdd") Boolean isAdd) {
-        System.out.println("The user is attempting add or remove a bookmark:");
-        System.out.println("\tpostId: " + postId);
-        System.out.println("\tisAdd: " + isAdd);
+      System.out.println("The user is attempting add or remove a bookmark:");
+      System.out.println("\tpostId: " + postId);
+      System.out.println("\tisAdd: " + isAdd);
 
-	String updateBookmarkSql = "insert into bookmark (userId, postId) values (?, ?)";
-	if (!isAdd) {
-	    updateBookmarkSql = "delete from bookmark where userId = ? and postId = ?";
-	}
-
-        try (Connection conn = dataSource.getConnection();
-		PreparedStatement updateBookmarkStmt = conn.prepareStatement(updateBookmarkSql)) {
-
-		updateBookmarkStmt.setInt(2, Integer.parseInt(postId));
-		updateBookmarkStmt.setInt(1, Integer.parseInt(userService.getLoggedInUser().getUserId()));
-		int rowsAffected = updateBookmarkStmt.executeUpdate();
-
-		System.out.println("Total number of rows affected: " + rowsAffected);
-		
-		if (rowsAffected > 0) {
-			return "redirect:/post/" + postId;
+		String updateBookmarkSql = "insert into bookmark (userId, postId) values (?, ?)";
+		if (!isAdd) {
+			updateBookmarkSql = "delete from bookmark where userId = ? and postId = ?";
 		}
-		else {
+
+		try (Connection conn = dataSource.getConnection();
+				PreparedStatement updateBookmarkStmt = conn.prepareStatement(updateBookmarkSql)) {
+
+			updateBookmarkStmt.setInt(2, Integer.parseInt(postId));
+			updateBookmarkStmt.setInt(1, Integer.parseInt(userService.getLoggedInUser().getUserId()));
+			int rowsAffected = updateBookmarkStmt.executeUpdate();
+
+			System.out.println("Total number of rows affected: " + rowsAffected);
+			
+			if (rowsAffected > 0) {
+				return "redirect:/post/" + postId;
+			}
+			else {
+				String message = URLEncoder.encode("Failed to (un)bookmark the post. Please try again.",
+					StandardCharsets.UTF_8);
+				return "redirect:/post/" + postId + "?error=" + message;
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
 			String message = URLEncoder.encode("Failed to (un)bookmark the post. Please try again.",
 				StandardCharsets.UTF_8);
 			return "redirect:/post/" + postId + "?error=" + message;
 		}
-	}
-	catch(Exception e) {
-		e.printStackTrace();
-		String message = URLEncoder.encode("Failed to (un)bookmark the post. Please try again.",
-			StandardCharsets.UTF_8);
-		return "redirect:/post/" + postId + "?error=" + message;
-	}
 
-    }
+   }
 
 }

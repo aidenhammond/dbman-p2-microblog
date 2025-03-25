@@ -25,6 +25,11 @@ import java.sql.ResultSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.format.DateTimeFormatter;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 /**
  * Handles /bookmarks and its sub URLs.
  * No other URLs at this point.
@@ -79,10 +84,15 @@ public class BookmarksController {
                 while (rs.next()) {
                     String postId = String.valueOf(rs.getInt("postId"));
                     String content = rs.getString("content");
-                    String postDate = rs.getTimestamp("postDate").toString();
                     String userId = String.valueOf(rs.getInt("userId"));
                     String firstName = rs.getString("firstName");
                     String lastName = rs.getString("lastName");
+
+                    Timestamp ts = rs.getTimestamp("postDate");
+                    String postDate = ts.toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime()
+                        .format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a"));
 
                     boolean isHearted = userService.isPostHeartedByUser(postId);
                     boolean isBookmarked = true; // all these posts are already bookmarked
