@@ -73,7 +73,7 @@ public class PeopleController {
         // You should replace it with actual data from the database.
         // Use the PeopleService instance to find followable users.
         // Use UserService to access logged in userId to exclude.
-        List<FollowableUser> followableUsers = peopleService.getFollowableUsers(curr_user_id);//Utility.createSampleFollowableUserList();
+        List<FollowableUser> followableUsers = peopleService.getFollowableUsers(curr_user_id);
         mv.addObject("users", followableUsers);
 
         // If an error occured, you can set the following property with the
@@ -82,9 +82,6 @@ public class PeopleController {
         String errorMessage = error;
         mv.addObject("errorMessage", errorMessage);
 
-        // Enable the following line if you want to show no content message.
-        // Do that if your content list is empty.
-        // mv.addObject("isNoContent", true);
         
         return mv;
     }
@@ -106,8 +103,6 @@ public class PeopleController {
         System.out.println("\tuserId: " + userId);
         System.out.println("\tisFollow: " + isFollow);
 
-        // Redirect the user if the comment adding is a success.
-        // return "redirect:/people";
 	String followerId = userService.getLoggedInUser().getUserId();
 
         String sql;
@@ -140,10 +135,6 @@ public class PeopleController {
             return "redirect:/people?error=" + message;
         }
 
-        // Redirect the user with an error message if there was an error.
-        //String message = URLEncoder.encode("Failed to (un)follow the user. Please try again.",
-        //        StandardCharsets.UTF_8);
-        //return "redirect:/people?error=" + message;
     }
 
 }

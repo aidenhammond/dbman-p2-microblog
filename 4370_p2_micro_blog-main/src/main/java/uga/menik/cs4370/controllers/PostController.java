@@ -139,10 +139,6 @@ public class PostController {
         String errorMessage = error;
         mv.addObject("errorMessage", errorMessage);
 
-        // Enable the following line if you want to show no content message.
-        // Do that if your content list is empty.
-        // mv.addObject("isNoContent", true);
-
         return mv;
     }
 
