@@ -163,13 +163,6 @@ public class HomeController {
             return "redirect:/?error=";
         }
 
-        // Redirect the user if the post creation is a success.
-        // return "redirect:/";
-
-        // Redirect the user with an error message if there was an error.
-        //String message = URLEncoder.encode("Failed to create the post. Please try again.",
-        //        StandardCharsets.UTF_8);
-        //return "redirect:/?error=" + message;
     }
 
 }
