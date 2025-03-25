@@ -109,18 +109,6 @@ public class BookmarksController {
         }
 
         return mv;
-        //mv.addObject("posts", posts);
-
-        // If an error occured, you can set the following property with the
-        // error message to show the error message to the user.
-        // String errorMessage = "Some error occured!";
-        // mv.addObject("errorMessage", errorMessage);
-
-        // Enable the following line if you want to show no content message.
-        // Do that if your content list is empty.
-        // mv.addObject("isNoContent", true);
-
-        //return mv;
     }
     
 }

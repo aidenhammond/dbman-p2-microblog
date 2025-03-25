@@ -78,9 +78,8 @@ public class ProfileController {
 	String sql = """
             SELECT p.postId, p.content, p.postDate, p.userId, p.heartsCount, p.commentsCount,
                    u.firstName, u.lastName
-            FROM post p
-            JOIN user u ON p.userId = u.userId
-            WHERE p.userId = ?
+            FROM post p, user u
+            WHERE p.userId = ? and p.userId = u.userId
             ORDER BY p.postDate DESC
         """;
     
@@ -111,29 +110,19 @@ public class ProfileController {
             }
     
         } catch (Exception e) {
+            // If an error occured, you can set the following property with the
+            // error message to show the error message to the user.
             e.printStackTrace();
             mv.addObject("errorMessage", "Failed to load profile posts.");
         }
     
         mv.addObject("posts", posts);
-        if (posts.isEmpty()) {
-            mv.addObject("isNoContent", true);
-        }
-
-
-        // Following line populates sample data.
-        // You should replace it with actual data from the database.
-        //List<Post> posts = Utility.createSamplePostsListWithoutComments();
-        //mv.addObject("posts", posts);
-
-        // If an error occured, you can set the following property with the
-        // error message to show the error message to the user.
-        // String errorMessage = "Some error occured!";
-        // mv.addObject("errorMessage", errorMessage);
 
         // Enable the following line if you want to show no content message.
         // Do that if your content list is empty.
-        // mv.addObject("isNoContent", true);
+        if (posts.isEmpty()) {
+            mv.addObject("isNoContent", true);
+        }
         
         return mv;
     }

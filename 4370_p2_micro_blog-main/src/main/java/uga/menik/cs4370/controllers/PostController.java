@@ -69,17 +69,14 @@ public class PostController {
     public ModelAndView webpage(@PathVariable("postId") String postId,
             @RequestParam(name = "error", required = false) String error) {
         System.out.println("The user is attempting to view post with id: " + postId);
-        // See notes on ModelAndView in BookmarksController.java.
+
         ModelAndView mv = new ModelAndView("posts_page");
 
-        // Following line populates sample data.
-        // You should replace it with actual data from the database.
-        //List<ExpandedPost> posts = Utility.createSampleExpandedPostWithComments();
 	List<ExpandedPost> posts = new ArrayList<>();
 
 	List<Comment> commentsForPost = new ArrayList<>();
 	String sql = """
-		select  c.content, c.postDate, c.userId, u.firstName, u.lastName
+		select c.content, c.postDate, c.userId, u.firstName, u.lastName
 		from user u, comment c
 		where c.userId = u.userId and c.postId = ?
 		order by c.postDate asc
@@ -269,11 +266,6 @@ public class PostController {
         System.out.println("\tpostId: " + postId);
         System.out.println("\tisAdd: " + isAdd);
 
-        // Redirect the user if the comment adding is a success.
-        // return "redirect:/post/" + postId;
-
-        // Redirect the user with an error message if there was an error.
-
 	String updateBookmarkSql = "insert into bookmark (userId, postId) values (?, ?)";
 	if (!isAdd) {
 	    updateBookmarkSql = "delete from bookmark where userId = ? and postId = ?";
@@ -287,7 +279,6 @@ public class PostController {
 		int rowsAffected = updateBookmarkStmt.executeUpdate();
 
 		System.out.println("Total number of rows affected: " + rowsAffected);
-
 		
 		if (rowsAffected > 0) {
 			return "redirect:/post/" + postId;
@@ -305,9 +296,6 @@ public class PostController {
 		return "redirect:/post/" + postId + "?error=" + message;
 	}
 
-        //String message = URLEncoder.encode("Failed to (un)bookmark the post. Please try again.",
-        //        StandardCharsets.UTF_8);
-        //return "redirect:/post/" + postId + "?error=" + message;
     }
 
 }
